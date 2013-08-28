@@ -19,7 +19,7 @@
 
 
 /* Total amount per month you are willing to pay */
-#define PAYMENT_NOMINAL			400.00
+#define PAYMENT_NOMINAL			500.00
 
 /* 
  * How much you're willing to deviate from the nominal montly payment above.
@@ -41,16 +41,16 @@ typedef struct {
 loan_t loans[NUM_LOANS] = 
 {
 	// Loan 1
-	{ .interest_rate = 5.75, .principal = 4763.64 },
+	{ .interest_rate = 5.00, .principal = 4000 },
 
 	// Loan 2
-	{ .interest_rate = 4.25, .principal = 4716.76 },
+	{ .interest_rate = 4.00, .principal = 4000 },
 
 	// Loan 3
-	{ .interest_rate = 5.35, .principal = 4751.38 },
+	{ .interest_rate = 3.00, .principal = 4000 },
 	
 	// Loan 4
-	{ .interest_rate = 6.05, .principal = 1394.69 },
+	{ .interest_rate = 2.00, .principal = 4000 },
 
 };
 
