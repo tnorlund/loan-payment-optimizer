@@ -19,14 +19,14 @@
 
 
 /* Total amount per month you are willing to pay */
-#define PAYMENT_NOMINAL			1250.00
+#define PAYMENT_NOMINAL			400.00
 
 /* 
  * How much you're willing to deviate from the nominal montly payment above.
  * If non-zero, the GA will also try to optimize the monthly payment amount.
  * Use zero if you want to only pay exactly PAYMENT_NOMINAL per month.
  */
-#define PAYMENT_DEVIATION		0.0
+#define PAYMENT_DEVIATION		50.0
 
 
 typedef struct {
@@ -35,19 +35,22 @@ typedef struct {
 } loan_t;
 
 /* Number of loans defined in the struct below */
-#define NUM_LOANS	3
+#define NUM_LOANS	4
 
 /* Loan data. Only require the interest rate and the initial principal amount */
 loan_t loans[NUM_LOANS] = 
 {
 	// Loan 1
-	{ .interest_rate = 5.00, .principal = 1500.00 },
+	{ .interest_rate = 5.75, .principal = 4763.64 },
 
 	// Loan 2
-	{ .interest_rate = 3.50, .principal = 10000.00 },
+	{ .interest_rate = 4.25, .principal = 4716.76 },
 
 	// Loan 3
-	{ .interest_rate = 9.50, .principal = 5000.00 },
+	{ .interest_rate = 5.35, .principal = 4751.38 },
+	
+	// Loan 4
+	{ .interest_rate = 6.05, .principal = 1394.69 },
 
 };
 
