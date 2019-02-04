@@ -15,18 +15,19 @@
 #include <unistd.h>
 #include <math.h>
 #include <assert.h>
+#include <time.h>
 #include "micro-ga.h"
 
 
 /* Total amount per month you are willing to pay */
-#define PAYMENT_NOMINAL			500.00
+#define PAYMENT_NOMINAL			1500.00
 
 /* 
  * How much you're willing to deviate from the nominal montly payment above.
  * If non-zero, the GA will also try to optimize the monthly payment amount.
  * Use zero if you want to only pay exactly PAYMENT_NOMINAL per month.
  */
-#define PAYMENT_DEVIATION		50.0
+#define PAYMENT_DEVIATION		0.1
 
 
 typedef struct {
@@ -35,22 +36,16 @@ typedef struct {
 } loan_t;
 
 /* Number of loans defined in the struct below */
-#define NUM_LOANS	4
+#define NUM_LOANS	9
 
 /* Loan data. Only require the interest rate and the initial principal amount */
 loan_t loans[NUM_LOANS] = 
 {
 	// Loan 1
-	{ .interest_rate = 5.00, .principal = 4000 },
+	{ .interest_rate = 5.00, .principal = 5000.00 },
 
 	// Loan 2
-	{ .interest_rate = 4.00, .principal = 4000 },
-
-	// Loan 3
-	{ .interest_rate = 3.00, .principal = 4000 },
-	
-	// Loan 4
-	{ .interest_rate = 2.00, .principal = 4000 },
+	{ .interest_rate = 7.00, .principal = 5000.00 },
 
 };
 
@@ -59,7 +54,7 @@ loan_t loans[NUM_LOANS] =
  * higher the number, the better the solution. Too few iterations will lead to 
  * very sub-optimal solutions. Too many iterations will cause longer execution.
  */
-#define MAX_ITERATIONS		50
+#define MAX_ITERATIONS		10000
 
 /*
  * Number of individuals in the GA's gene pool. Since this uses a micro GA,
@@ -168,7 +163,7 @@ void eval_fitness(micro_ga_genome_t* individual)
 		f += p;
 
 		if(VERBOSE)
-			printf("\tGene: %.2f\tMonthly payment: %.2f\n", individual->genes[i], payments[i]);
+			printf("\tGene: %.2f\t\tMonthly payment: %.2f\n", individual->genes[i], payments[i]);
 
 		// Make sure the loan can be paid off at this amount
 		// Loans with montly payments too low will take infinite time to pay off
@@ -191,7 +186,7 @@ float num_payments(loan_t* loan, double monthly_payment)
 {
 	float i = loan->interest_rate / 12.0 / 100.0;
 	float n  = -1 * log10(1 - i * loan->principal / monthly_payment );
-	      n /= log10(1 + i);
+	return n /= log10(1 + i);
 }
 
 /* Compute the total paid given the loan and a monthly payment */
@@ -248,12 +243,12 @@ void genome_to_payments(micro_ga_genome_t* individual, float* payments)
 /* Print information about an individual solution */
 void print_info(micro_ga_t* ga)
 {
-	float t, y;
+	float t, y, interest;
 	float payments[NUM_LOANS];
 	unsigned int i, j;
 
-	printf("Summary\n");
-	printf("-------\n");
+	// printf("Summary\n");
+	// printf("-------\n");
 
 	for(i = 0; i < POP_SIZE; i++)
 	{
@@ -262,18 +257,16 @@ void print_info(micro_ga_t* ga)
 		// Convert genome to montly payment amounts
 		genome_to_payments( &(ga->individuals[i]), payments);
 
-		printf("Individual %u\n", i);
-		printf("--------------\n");
-
+		// printf("Individual %u\n", i);
+		// printf("--------------\n");
+		printf("{\n")
 		for(j = 0; j< NUM_LOANS; j++) {
 			t += total_paid( &(loans[j]), payments[j] );
-			y = num_payments( &(loans[j]), payments[j] ) / 12.0;
-			printf(" Loan %u:\tPayment: $%.2f\tYears: %.2f\n", j, payments[j], y);
-		}
 
-		printf("Monthly Payment: $%.2f\n", monthly_nominal( &(ga->individuals[i]) ));
-		printf("Total Paid:      $%.2f\n", t);
-		printf("\n");
+			printf("  Loan %u:{\n    \"balance\": %.2f,\n    \"payment\": %.2f,\n    \"interest\": %.4f,\n    \"paid off\": false\n  },\n", 
+				j, loans[j].principal, payments[j], loans[j].interest_rate / 100.0);
+			
+		}
+		printf("  \"monthly payment\": %.2f\n}\n", monthly_nominal( &(ga->individuals[i]) ));
 	}
 }
-
